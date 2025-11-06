@@ -20,6 +20,8 @@ type ExampleReply struct {
 // Add your RPC definitions here.
 
 type Split struct {
-	taskNum  int
-	filename string
+	TaskNum  int
+	Filename string
 }
+
+type Empty struct{}

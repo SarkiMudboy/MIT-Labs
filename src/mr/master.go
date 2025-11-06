@@ -6,14 +6,17 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"path/filepath"
+	"strconv"
 	"sync"
 )
 
 type Master struct {
 	// Your definitions here.
-	nextFile   *int
+	nextFile   int
 	inputFiles []string
 	lock       sync.Mutex
+	tasks      map[string]string
 }
 
 // Your code here -- RPC handlers for the worker to call.
@@ -24,14 +27,22 @@ func (m *Master) Example(args *ExampleArgs, reply *ExampleReply) error {
 	return nil
 }
 
-func (m *Master) RequestTask(args interface{}, reply *Split) error {
+func (m *Master) RequestTask(args Empty, reply *Split) error {
 
-	m.lock.Lock()
-	reply.filename = m.inputFiles[*m.nextFile]
-	reply.taskNum = *m.nextFile
+	// m.lock.Lock()
+	fileName := m.inputFiles[m.nextFile]
+	f, err := filepath.Abs(fileName)
 
-	*m.nextFile++
+	if err != nil {
+		panic(err)
+	}
 
+	reply.Filename = f
+	reply.TaskNum = m.nextFile
+
+	//TODO: will add state data "idle", "completed", "failed"
+	m.tasks[strconv.Itoa(m.nextFile)] = f //register task
+	m.nextFile++
 	return nil
 }
 
@@ -42,6 +53,9 @@ func (m *Master) server() {
 	l, e := net.Listen("tcp", ":1234")
 	os.Remove("mr-socket")
 	// l, e := net.Listen("unix", "mr-socket")
+
+	log.Printf("listening on: %v", ":1234")
+
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}

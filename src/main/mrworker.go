@@ -8,11 +8,13 @@ package main
 // go run mrworker.go ../mrapps/wc.so
 //
 
-import "github.com/SarkiMudboy/MIT-Labs/src/mr"
-import "plugin"
-import "os"
-import "fmt"
-import "log"
+import (
+	"fmt"
+	"github.com/SarkiMudboy/MIT-Labs/src/mr"
+	"log"
+	"os"
+	"plugin"
+)
 
 func main() {
 	if len(os.Args) != 2 {
@@ -21,7 +23,6 @@ func main() {
 	}
 
 	mapf, reducef := loadPlugin(os.Args[1])
-
 	mr.Worker(mapf, reducef)
 }
 
